@@ -33,7 +33,7 @@ async def login_for_access_token(
 
 @router.post("/users/sign_in")
 async def sign_in(username: Annotated[str, Query(max_length = 25)],
-                  password: Annotated[str, Query(description = "Password must contain: small letter, capital letter, digit, special symbol", min_length = 6), Depends(validate_password)],
+                  password: Annotated[str, Query(description = "Password must contain: small letter, capital letter, digit, special symbol", min_length = 6)],
                   email: str,
                   phone_number: Annotated[str, Query(example="+000000000000", max_length = 13, min_length = 13)],
                   full_name: str | None = None,
@@ -42,6 +42,7 @@ async def sign_in(username: Annotated[str, Query(max_length = 25)],
     if username in fake_users_db:
         raise HTTPException(status_code=400, detail="Username already exists")
     
+    validate_password(password)
 
     hashed_password = get_password_hash(password)
     fake_users_db[username] = {

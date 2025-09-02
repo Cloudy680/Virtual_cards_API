@@ -32,9 +32,9 @@ def validate_password(password : str):
     has_special = re.search(r'[!@#$%^&*()_+\-=\[\]{};:\'",.<>/?\\|`~]', password) is not None
     password_check = {"small letter" : has_lower, "capital letter" : has_upper, "digit" : has_digit, "special symbol" : has_special}
     for key in password_check:
-        if password_check[key] == False:
-            raise HTTPException(status_code=400, detail=f"Password must contain {key}")
-    return password
+        if not password_check[key]:
+            raise HTTPException(status_code=400, detail=password_check)
+
 
 
 def check_if_active(user : User):
