@@ -1,15 +1,12 @@
-from datetime import datetime, timedelta, timezone
+from datetime import  timedelta
 from typing import Annotated
 
-import jwt
-from fastapi import Depends, FastAPI, HTTPException, status, APIRouter, Query, Path, Body
+from fastapi import Depends, HTTPException, status, APIRouter, Query
 from fastapi.security import OAuth2PasswordRequestForm
-from jwt.exceptions import InvalidTokenError
 
 from app.core.config import settings
-from app.api.dependencies import get_current_active_user, fake_users_db, get_password_hash, authenticate_user, create_access_token, validate_password
+from app.api.dependencies import fake_users_db, get_password_hash, authenticate_user, create_access_token, validate_password
 from app.core.security import Token
-
 
 router = APIRouter()
 
@@ -36,7 +33,7 @@ async def sign_in(username: Annotated[str, Query(max_length = 25)],
                   password: Annotated[str, Query(description = "Password must contain: small letter, capital letter, digit, special symbol", min_length = 6)],
                   email: str,
                   phone_number: Annotated[str, Query(example="+000000000000", max_length = 13, min_length = 13)],
-                  full_name: str | None = None,
+                  full_name: str,
                   adress: str | None = None
                   ):
     if username in fake_users_db:

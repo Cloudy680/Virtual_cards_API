@@ -3,13 +3,13 @@ from typing import Annotated
 
 import re
 import jwt
-from fastapi import Depends, FastAPI, HTTPException, status, APIRouter
+from fastapi import Depends, HTTPException, status
 from jwt.exceptions import InvalidTokenError
 
 from app.core.config import settings
 from app.core.security import pwd_context, oauth2_scheme, TokenData
 
-from app.models.user import User, UserInDB
+from app.models.user import User, User_In_DB
 
 
 
@@ -52,7 +52,7 @@ def get_password_hash(password):
 def get_user(db, username: str):
     if username in db:
         user_dict = db[username]
-        return UserInDB(**user_dict)
+        return User_In_DB(**user_dict)
 
 
 def authenticate_user(fake_db, username: str, password: str):
@@ -104,3 +104,4 @@ async def get_current_active_user(
 ):
     check_if_active(current_user)
     return current_user
+
