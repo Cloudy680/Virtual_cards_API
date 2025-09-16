@@ -8,6 +8,10 @@ from app.core.config import settings
 from app.api.dependencies import fake_users_db, get_password_hash, authenticate_user, create_access_token, validate_password
 from app.core.security import Token
 
+
+from app.core.db_core import add_new_user
+from app.models.user import User_In_DB
+
 router = APIRouter()
 
 @router.post("/token")
@@ -33,26 +37,43 @@ async def sign_in(username: Annotated[str, Query(max_length = 25)],
                   password: Annotated[str, Query(description = "Password must contain: small letter, capital letter, digit, special symbol", min_length = 6)],
                   email: str,
                   phone_number: Annotated[str, Query(example="+000000000000", max_length = 13, min_length = 13)],
-                  full_name: str,
-                  adress: str | None = None
+                  name : str,
+                  surname : str,
+                  patronymic : str,
+                  address: str | None = None
                   ):
     if username in fake_users_db:
         raise HTTPException(status_code=400, detail="Username already exists")
     
     validate_password(password)
-
     hashed_password = get_password_hash(password)
+
+    await add_new_user(User_In_DB(username = username,
+                           hashed_password =hashed_password,
+                           email = email,
+                           name = name,
+                           surname = surname,
+                           patronymic = patronymic,
+                           phone_number = phone_number,
+                           address = address,
+                           disabled = False,
+                            )
+                       )
+
     fake_users_db[username] = {
         "username": username,
-        "full_name": full_name,
+        "name": name,
+        "surname": name,
+        "patronymic": name,
         "email": email,
         "phone_number": phone_number,
-        "adress": adress,
+        "address": address,
         "hashed_password": hashed_password,
         "disabled": False
     }
-    if full_name:
-        return {"message": f"Welcome {full_name}!"}
+
+    if name:
+        return {"message": f"Welcome {name}!"}
     else:
         return {"message": f"Welcome {username}!"}
 
