@@ -25,3 +25,4 @@ async def check(current_user : Annotated[User, Depends(get_current_active_user)]
         return {"message": f"Welcome to FastAPI App {current_user.name}!"}
     else:
         return {"message": f"Welcome to FastAPI App {current_user.name}!"}
+
