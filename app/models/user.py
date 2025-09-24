@@ -4,8 +4,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.db.database import Base
 
 
-metadata_user = MetaData()
-
 
 # users_table = Table(
 #     "users",
@@ -44,6 +42,9 @@ class User(BaseModel):
     phone_number: str
     address: str | None = None
     disabled: bool | None = None
+
+    class Config:
+        from_attributes = True
 
 
 class User_In_DB(User):

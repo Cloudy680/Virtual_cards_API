@@ -5,6 +5,8 @@ from app.api.endpoints import cards
 from app.api.dependencies import get_current_active_user
 from app.models.user import User
 
+from app.core.db_core import select_all_users
+
 
 from app.core.db_core import create_tables
 
@@ -25,4 +27,9 @@ async def check(current_user : Annotated[User, Depends(get_current_active_user)]
         return {"message": f"Welcome to FastAPI App {current_user.name}!"}
     else:
         return {"message": f"Welcome to FastAPI App {current_user.name}!"}
+
+@app.get("/Users", tags = ["Users"])
+async def get_all_users(current_user : Annotated[User, Depends(get_current_active_user)] ):
+    users = await select_all_users()
+    return users
 
