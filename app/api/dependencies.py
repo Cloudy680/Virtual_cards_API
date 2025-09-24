@@ -9,20 +9,10 @@ from jwt.exceptions import InvalidTokenError
 from app.core.config import settings
 from app.core.security import pwd_context, oauth2_scheme, TokenData
 
-from app.models.user import User, User_In_DB
+from app.models.user import User, User_In_DB, UserORM
 
+from app.core.db_core import get_user_by_username, check_if_username_exists
 
-
-fake_users_db = {
-    "testuser": {
-        "username": "testuser",
-        "full_name": "Test User",
-        "email": "test@example.com",
-        "adress": "221B Baker Street",
-        "hashed_password": "$2b$12$tKVCHV/haROHeOQZ9OLzZex2bDx8/ZP3BwejXH/cE7jmyaoIfxuoa",
-        "disabled": False,
-    }
-}
 
 
 def validate_password(password : str):
@@ -49,14 +39,14 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return User_In_DB(**user_dict)
+async def get_user(username: str):
+    if await check_if_username_exists(username):
+        user_from_db = await get_user_by_username(username)
+        return user_from_db
 
 
-def authenticate_user(fake_db, username: str, password: str):
-    user = get_user(fake_db, username)
+async def authenticate_user(username: str, password: str):
+    user = await get_user(username)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -93,7 +83,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         token_data = TokenData(username=username)
     except InvalidTokenError:
         raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
+    user = await get_user(username=token_data.username)
     if user is None:
         raise credentials_exception
     return user

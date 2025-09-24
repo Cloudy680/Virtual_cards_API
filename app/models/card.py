@@ -7,33 +7,36 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.database import Base
 
-class payment_system(enum.Enum):
-    mastercard = "mastercard"
-    visa = "visa"
-    belcard = "belcard"
+class Payment_system(enum.Enum):
+    mastercard = "MASTERCARD"
+    visa = "VISA"
+    belcard = "BELCARD"
 
 class CardORM(Base):
     __tablename__ = "cards"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    number: Mapped[int] = mapped_column(String(16), nullable=False)
+    number: Mapped[str] = mapped_column(String(16), nullable=False, unique = True)
     carrier_name : Mapped[str] = mapped_column(nullable=False)
-    establishment_date : Mapped[date] = mapped_column(nullable=False)
     expires_date : Mapped[date] = mapped_column(nullable=False)
-    payment_system : Mapped[payment_system]
+    payment_system : Mapped[Payment_system] = mapped_column(nullable=False)
     cvv : Mapped[str] = mapped_column(String(3), nullable=False)
 
-    user_id : Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    carrier_username : Mapped[str] = mapped_column(ForeignKey("users.username", ondelete="CASCADE"))
 
+    frozen : Mapped[bool] = mapped_column(nullable=False, default=False)
 
 
 
 class Card(BaseModel):
     number : str
     carrier_name : str
-    establishment_date : date
     expires_date : date
-    payment_system : str
+    payment_system : Payment_system
+    frozen : bool = False
+
+    class Config:
+        from_attributes = True
 
 class Card_In_DB(Card):
-    cvv : int
+    cvv : str

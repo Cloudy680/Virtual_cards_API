@@ -5,25 +5,11 @@ from app.db.database import Base
 
 
 
-# users_table = Table(
-#     "users",
-#     metadata_user,
-#     Column("id", Integer, primary_key = True ),
-#     Column("username", String),
-#     Column("hashed_password", String),
-#     Column("name", String),
-#     Column("surname", String),
-#     Column("patronymic", String),
-#     Column("phone_number", String),
-#     Column("adress", String)
-# )
-
-
 class UserORM(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(nullable=False)
+    username: Mapped[str] = mapped_column(nullable=False, unique = True)
     hashed_password : Mapped[str] = mapped_column(nullable=False)
     email : Mapped[str] = mapped_column(nullable=False)
     name: Mapped[str] = mapped_column(nullable=False)
@@ -31,7 +17,7 @@ class UserORM(Base):
     patronymic: Mapped[str] = mapped_column(nullable=False)
     phone_number : Mapped[str] = mapped_column()
     address : Mapped[str] = mapped_column()
-    disabled : Mapped[bool] = mapped_column(default=False)
+    disabled : Mapped[bool] = mapped_column(nullable=False, default=False)
 
 class User(BaseModel):
     username: str
@@ -41,7 +27,7 @@ class User(BaseModel):
     patronymic : str
     phone_number: str
     address: str | None = None
-    disabled: bool | None = None
+    disabled: bool = False
 
     class Config:
         from_attributes = True

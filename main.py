@@ -8,7 +8,7 @@ from app.models.user import User
 from app.core.db_core import select_all_users
 
 
-from app.core.db_core import create_tables
+from app.core.db_core import create_tables, get_user_by_username
 
 app = FastAPI(title="Virtual cards api", version="1.0.0")
 
@@ -28,7 +28,7 @@ async def check(current_user : Annotated[User, Depends(get_current_active_user)]
     else:
         return {"message": f"Welcome to FastAPI App {current_user.name}!"}
 
-@app.get("/Users", tags = ["Users"])
+@app.get("/Users/check_endp", tags = ["Users"])
 async def get_all_users(current_user : Annotated[User, Depends(get_current_active_user)] ):
     users = await select_all_users()
     return users

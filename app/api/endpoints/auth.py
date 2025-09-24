@@ -5,11 +5,11 @@ from fastapi import Depends, HTTPException, status, APIRouter, Query
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.core.config import settings
-from app.api.dependencies import fake_users_db, get_password_hash, authenticate_user, create_access_token, validate_password
+from app.api.dependencies import get_password_hash, authenticate_user, create_access_token, validate_password
 from app.core.security import Token
 
 
-from app.core.db_core import add_new_user
+from app.core.db_core import add_new_user, check_if_username_exists
 from app.models.user import User_In_DB
 
 router = APIRouter()
@@ -18,7 +18,7 @@ router = APIRouter()
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+    user = await authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -42,7 +42,7 @@ async def sign_in(username: Annotated[str, Query(max_length = 25)],
                   patronymic : str,
                   address: str | None = None
                   ):
-    if username in fake_users_db:
+    if await check_if_username_exists(username):
         raise HTTPException(status_code=400, detail="Username already exists")
     
     validate_password(password)
@@ -59,18 +59,6 @@ async def sign_in(username: Annotated[str, Query(max_length = 25)],
                            disabled = False,
                             )
                        )
-
-    fake_users_db[username] = {
-        "username": username,
-        "name": name,
-        "surname": name,
-        "patronymic": name,
-        "email": email,
-        "phone_number": phone_number,
-        "address": address,
-        "hashed_password": hashed_password,
-        "disabled": False
-    }
 
     if name:
         return {"message": f"Welcome {name}!"}
