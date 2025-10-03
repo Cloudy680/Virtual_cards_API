@@ -12,7 +12,7 @@ class SchedulerManager:
 
         self.scheduler.add_job(
             CardCleanupService.perform_full_cleanup,
-            trigger=IntervalTrigger(hours = 24),  # Каждые 24 часа
+            trigger=IntervalTrigger(hours = 24),
             id='daily_card_and_transaction_cleanup',
             replace_existing=True,
             name='Daily card expiration check and cleanup, transaction cleanup'
