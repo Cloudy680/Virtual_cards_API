@@ -23,14 +23,13 @@ class CardORM(Base):
     expires_date : Mapped[date] = mapped_column(nullable=False)
     payment_system : Mapped[Payment_system] = mapped_column(nullable=False)
     cvv : Mapped[str] = mapped_column(String(3), nullable=False)
-
     carrier_username : Mapped[str] = mapped_column(ForeignKey("users.username", ondelete="CASCADE"))
-
     frozen : Mapped[bool] = mapped_column(nullable=False, default=False)
 
 
 
 class Card(BaseModel):
+    id : int |  None = None
     number : str = None
     carrier_name : str = None
     expires_date : date = None
@@ -39,16 +38,16 @@ class Card(BaseModel):
 
 
     @staticmethod
-    async def check_if_card_exists(number, carrier_username):
+    async def check_if_card_exists(number : str, carrier_username : str) -> bool:
         async with async_session_factory() as session:
             stmt = select(exists().where(CardORM.number == number, CardORM.carrier_username == carrier_username))
             result = await session.execute(stmt)
             return result.scalar()
 
     @staticmethod
-    async def check_if_card_is_frozen(number, carrier_username):
+    async def check_if_card_is_frozen(id : int, carrier_username : str) -> bool:
         async with async_session_factory() as session:
-            stmt = select(exists().where(CardORM.number == number, CardORM.carrier_username == carrier_username,
+            stmt = select(exists().where(CardORM.id == id, CardORM.carrier_username == carrier_username,
                                          CardORM.frozen == True))
             result = await session.execute(stmt)
             return result.scalar()
@@ -58,7 +57,6 @@ class Card(BaseModel):
 
 class Card_In_DB(Card):
     cvv : str
-
 
 
 Card_check_functions = Card()
