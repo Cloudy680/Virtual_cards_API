@@ -5,7 +5,9 @@ from datetime import date
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
-from app.db.database import Base
+
+from app.db.database import async_session_factory, Base
+from sqlalchemy import select, exists
 
 class Payment_system(enum.Enum):
     mastercard = "MASTERCARD"
@@ -29,14 +31,34 @@ class CardORM(Base):
 
 
 class Card(BaseModel):
-    number : str
-    carrier_name : str
-    expires_date : date
-    payment_system : Payment_system
+    number : str = None
+    carrier_name : str = None
+    expires_date : date = None
+    payment_system : Payment_system = None
     frozen : bool = False
+
+
+    @staticmethod
+    async def check_if_card_exists(number, carrier_username):
+        async with async_session_factory() as session:
+            stmt = select(exists().where(CardORM.number == number, CardORM.carrier_username == carrier_username))
+            result = await session.execute(stmt)
+            return result.scalar()
+
+    @staticmethod
+    async def check_if_card_is_frozen(number, carrier_username):
+        async with async_session_factory() as session:
+            stmt = select(exists().where(CardORM.number == number, CardORM.carrier_username == carrier_username,
+                                         CardORM.frozen == True))
+            result = await session.execute(stmt)
+            return result.scalar()
 
     class Config:
         from_attributes = True
 
 class Card_In_DB(Card):
     cvv : str
+
+
+
+Card_check_functions = Card()

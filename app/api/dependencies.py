@@ -43,6 +43,8 @@ async def get_user(username: str):
     if await check_if_username_exists(username):
         user_from_db = await get_user_by_username(username)
         return user_from_db
+    else:
+        return None
 
 
 async def authenticate_user(username: str, password: str):
