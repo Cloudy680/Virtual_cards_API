@@ -44,7 +44,7 @@ async def show_all_my_cards(current_user : Annotated[User, Depends(get_current_a
 async def delete_this_card(current_user : Annotated[User, Depends(get_current_active_user)],
                            id : int):
     card = await Card_CRUD.get_card_by_id(id, current_user.username)
-    if card is not None:
+    if card:
         if await Card_CRUD.delete_card(id, current_user.username):
             return {"message" : "This card is deleted"}
         else:
@@ -57,7 +57,7 @@ async def unfreeze_this_card(current_user: Annotated[User, Depends(get_current_a
                             id : int,
                             new_expires_date:date):
     card = await Card_CRUD.get_card_by_id(id, current_user.username)
-    if card is not None:
+    if card:
         if await Card_CRUD.change_card_expires_date(id, current_user.username, new_expires_date):
             return {"message" : "This card is active now"}
         else:

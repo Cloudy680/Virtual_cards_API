@@ -27,10 +27,17 @@ class TransactionORM(Base):
 
     card_number: Mapped[str] = mapped_column(ForeignKey("cards.number", ondelete="CASCADE"))
 
+
+
+
 class Transaction(BaseModel):
     amount_of_money: float
     name: str
     transaction_date: date
     transaction_time: time
     status: Status
+
+
+    class Config:
+        from_attributes = True
 

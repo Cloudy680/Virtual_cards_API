@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from typing import Annotated
-from app.api.endpoints import auth, cards, payments
+from app.api.endpoints import auth, cards, transactions
 from app.api.dependencies import get_current_active_user
 from app.models.user import User
 from app.core.sceduler import scheduler_manager
@@ -25,7 +25,7 @@ async def shutdown_event():
 
 app.include_router(auth.router, prefix = "/authentication", tags=["Authentication"])
 app.include_router(cards.router, prefix = "/Cards", tags = ["Cards"])
-app.include_router(payments.router, prefix = "/Payments", tags = ["Payments"])
+app.include_router(transactions.router, prefix = "/Transaction", tags = ["Transactions"])
 
 
 @app.get("/Check", tags = ["Check"])
