@@ -1,13 +1,16 @@
+from datetime import date
 from typing import Annotated
-from fastapi import Depends, HTTPException, status, APIRouter, Query
+
+from fastapi import Depends, HTTPException, APIRouter, Query
+
 from app.api.dependencies import get_current_active_user
-from app.models.user import User, User_In_DB
-from app.services.card_validate_service import validate_card_by_luna_algorithm
-from app.models.card import Payment_system, Card_In_DB, Card_check_functions, Card
+
+from app.services.validate_service import validate_service_obj
+
+from app.models.user import User
+from app.models.card import Payment_system, Card_In_DB, Card_check_functions
 
 from app.crud.card import Card_CRUD
-
-from datetime import date
 
 router = APIRouter()
 
@@ -19,7 +22,7 @@ async def add_a_new_card(current_user : Annotated[User, Depends(get_current_acti
                         payment_system: Payment_system,
                         cvv : Annotated[str, Query(min_length=3, max_length=3)],
                         ):
-    if validate_card_by_luna_algorithm(number):
+    if await validate_service_obj.validate_card_by_luna_algorithm(number):
         if await Card_check_functions.check_if_card_exists(number, current_user.username):
             raise HTTPException(status_code=400, detail="Card already exists")
         card_data = {"number":number,
@@ -42,10 +45,10 @@ async def show_all_my_cards(current_user : Annotated[User, Depends(get_current_a
 
 @router.delete("/Cards")
 async def delete_this_card(current_user : Annotated[User, Depends(get_current_active_user)],
-                           id : int):
-    card = await Card_CRUD.get_card_by_id(id, current_user.username)
+                           card_id : int):
+    card = await Card_CRUD.get_card_by_id(card_id, current_user.username)
     if card:
-        if await Card_CRUD.delete_card(id, current_user.username):
+        if await Card_CRUD.delete_card(card_id, current_user.username):
             return {"message" : "This card is deleted"}
         else:
             return {"message" : "Something went wrong with deleting this card"}
@@ -54,11 +57,11 @@ async def delete_this_card(current_user : Annotated[User, Depends(get_current_ac
 
 @router.post("/Cards/unfreeze")
 async def unfreeze_this_card(current_user: Annotated[User, Depends(get_current_active_user)],
-                            id : int,
+                            card_id : int,
                             new_expires_date:date):
-    card = await Card_CRUD.get_card_by_id(id, current_user.username)
+    card = await Card_CRUD.get_card_by_id(card_id, current_user.username)
     if card:
-        if await Card_CRUD.change_card_expires_date(id, current_user.username, new_expires_date):
+        if await Card_CRUD.change_card_expires_date(card_id, current_user.username, new_expires_date):
             return {"message" : "This card is active now"}
         else:
             return {"message" : "Something went wrong with changing cards expires date"}

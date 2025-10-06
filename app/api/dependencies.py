@@ -9,22 +9,9 @@ from jwt.exceptions import InvalidTokenError
 from app.core.config import settings
 from app.core.security import pwd_context, oauth2_scheme, TokenData
 
-from app.models.user import User, User_In_DB, UserORM
+from app.models.user import User, user_operations
 
-from app.core.db_core import get_user_by_username, check_if_username_exists
-
-
-
-def validate_password(password : str):
-    has_lower = re.search(r'[a-z]', password) is not None
-    has_upper = re.search(r'[A-Z]', password) is not None
-    has_digit = re.search(r'\d', password) is not None
-    has_special = re.search(r'[!@#$%^&*()_+\-=\[\]{};:\'",.<>/?\\|`~]', password) is not None
-    password_check = {"small letter" : has_lower, "capital letter" : has_upper, "digit" : has_digit, "special symbol" : has_special}
-    for key in password_check:
-        if not password_check[key]:
-            raise HTTPException(status_code=400, detail=password_check)
-
+from app.crud.user import user_CRUD_operations
 
 
 def check_if_active(user : User):
@@ -40,8 +27,8 @@ def get_password_hash(password : str):
 
 
 async def get_user(username: str):
-    if await check_if_username_exists(username):
-        user_from_db = await get_user_by_username(username)
+    if await user_operations.check_if_username_exists(username):
+        user_from_db = await user_CRUD_operations.get_user_by_username(username)
         return user_from_db
     else:
         return None

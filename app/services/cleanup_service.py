@@ -1,6 +1,9 @@
-from datetime import datetime, date, timedelta
+from datetime import date, timedelta
+
 from sqlalchemy import select
+
 from app.db.database import async_session_factory
+
 from app.models.card import CardORM
 from app.models.transaction import TransactionORM
 

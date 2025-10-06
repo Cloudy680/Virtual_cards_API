@@ -1,14 +1,17 @@
-from fastapi import FastAPI, Depends
+from datetime import datetime
+
 from typing import Annotated
-from app.api.endpoints import auth, cards, transactions
-from app.api.dependencies import get_current_active_user
-from app.models.user import User
+
+from fastapi import FastAPI, Depends
+
 from app.core.sceduler import scheduler_manager
+from app.core.db_core import create_tables
 
-from app.core.db_core import select_all_users
+from app.api.endpoints import auth, cards, transactions, account
+from app.api.dependencies import get_current_active_user
 
+from app.models.user import User
 
-from app.core.db_core import create_tables, get_user_by_username
 
 app = FastAPI(title="Virtual cards api", version="1.0.0")
 
@@ -26,18 +29,30 @@ async def shutdown_event():
 app.include_router(auth.router, prefix = "/authentication", tags=["Authentication"])
 app.include_router(cards.router, prefix = "/Cards", tags = ["Cards"])
 app.include_router(transactions.router, prefix = "/Transaction", tags = ["Transactions"])
+app.include_router(account.router, prefix = "/Account", tags = ["Account"])
 
 
-@app.get("/Check", tags = ["Check"])
+@app.get("/Root", tags = ["Root"])
+async def root():
+    return {
+        "message": "Card Service API",
+        "status": "running",
+        "version": "1.0.0"
+    }
+
+
+@app.get("/health", tags = ["Check"])
+async def health_check():
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat()
+    }
+
+@app.get("/User check", tags = ["Check"])
 async def check(current_user : Annotated[User, Depends(get_current_active_user)] ):
     if current_user.name:
         return {"message": f"Welcome to FastAPI App {current_user.name}!"}
     else:
         return {"message": f"Welcome to FastAPI App {current_user.name}!"}
 
-
-@app.get("/Users/check_endp", tags = ["Users"])
-async def get_all_users(current_user : Annotated[User, Depends(get_current_active_user)] ):
-    users = await select_all_users()
-    return users
 

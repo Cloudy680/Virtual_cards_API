@@ -3,11 +3,10 @@ import enum
 from pydantic import BaseModel
 from datetime import date, time
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.database import async_session_factory, Base
-from sqlalchemy import select, exists
+from app.db.database import Base
 
 class Status(enum.Enum):
     approved = "APPROVED"
@@ -25,9 +24,7 @@ class TransactionORM(Base):
     transaction_time: Mapped[time] = mapped_column(nullable=True)
     status: Mapped[Status] = mapped_column(nullable=True)
 
-    card_number: Mapped[str] = mapped_column(ForeignKey("cards.number", ondelete="CASCADE"))
-
-
+    card_id: Mapped[str] = mapped_column(ForeignKey("cards.id", ondelete="CASCADE"))
 
 
 class Transaction(BaseModel):

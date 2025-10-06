@@ -1,13 +1,14 @@
 import enum
 
-from pydantic import BaseModel
 from datetime import date
+from pydantic import BaseModel
 
 from sqlalchemy import ForeignKey, String
+from sqlalchemy import select, exists
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.database import async_session_factory, Base
-from sqlalchemy import select, exists
+
 
 class Payment_system(enum.Enum):
     mastercard = "MASTERCARD"
@@ -18,7 +19,7 @@ class CardORM(Base):
     __tablename__ = "cards"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    number: Mapped[str] = mapped_column(String(16), nullable=False, unique = True)
+    number: Mapped[str] = mapped_column(String(16), nullable=False)
     carrier_name : Mapped[str] = mapped_column(nullable=False)
     expires_date : Mapped[date] = mapped_column(nullable=False)
     payment_system : Mapped[Payment_system] = mapped_column(nullable=False)

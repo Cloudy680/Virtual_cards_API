@@ -1,6 +1,8 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 from apscheduler.triggers.interval import IntervalTrigger
-from app.services.card_cleanup_service import CardCleanupService
+
+from app.services.cleanup_service import CardCleanupService
 
 
 class SchedulerManager:

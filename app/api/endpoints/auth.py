@@ -5,12 +5,16 @@ from fastapi import Depends, HTTPException, status, APIRouter, Query
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.core.config import settings
-from app.api.dependencies import get_password_hash, authenticate_user, create_access_token, validate_password
 from app.core.security import Token
 
+from app.api.dependencies import get_password_hash, authenticate_user, create_access_token
 
-from app.core.db_core import add_new_user, check_if_username_exists
-from app.models.user import User_In_DB
+from app.services.validate_service import validate_service_obj
+
+from app.models.user import user_operations, User_In_DB
+
+from app.crud.user import user_CRUD_operations
+
 
 router = APIRouter()
 
@@ -42,13 +46,13 @@ async def sign_in(username: Annotated[str, Query(max_length = 25)],
                   patronymic : str,
                   address: str | None = None
                   ):
-    if await check_if_username_exists(username):
+    if await user_operations.check_if_username_exists(username):
         raise HTTPException(status_code=400, detail="Username already exists")
     
-    validate_password(password)
+    await validate_service_obj.validate_password(password)
     hashed_password = get_password_hash(password)
 
-    await add_new_user(User_In_DB(username = username,
+    await user_CRUD_operations.add_new_user(User_In_DB(username = username,
                            hashed_password =hashed_password,
                            email = email,
                            name = name,
@@ -60,9 +64,6 @@ async def sign_in(username: Annotated[str, Query(max_length = 25)],
                             )
                        )
 
-    if name:
-        return {"message": f"Welcome {name}!"}
-    else:
-        return {"message": f"Welcome {username}!"}
+    return {"message": f"Welcome {name}!"}
 
 
