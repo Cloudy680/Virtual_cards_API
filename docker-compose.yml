@@ -21,19 +21,6 @@ services:
     networks:
       - card_network
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: card_service_pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@cardapp.com
-      PGADMIN_DEFAULT_PASSWORD: admin123
-    ports:
-      - "8080:80"
-    depends_on:
-      - postgres
-    networks:
-      - card_network
-
   app:
     build: .
     container_name: card_service_app
