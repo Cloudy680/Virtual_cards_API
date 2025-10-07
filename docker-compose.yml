@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
-    container_name: card_service_db
+    container_name: card_service_db_container
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -21,13 +21,27 @@ services:
     networks:
       - card_network
 
+  pgadmin4:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: yanushkevich2006@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: ${DB_PASS}
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - card_network
+
   app:
     build: .
-    container_name: card_service_app
+    container_name: card_service_app_container
     ports:
       - "8000:8000"
     environment:
-      - DB_HOST=postgres
+      - DB_HOST=${DB_HOST}
       - DB_PORT=5432
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
@@ -46,6 +60,7 @@ services:
 
 volumes:
   postgres_data:
+  pgadmin-data:
 
 networks:
   card_network:
